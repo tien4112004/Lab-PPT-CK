@@ -1391,7 +1391,7 @@ function I = simpsons_one_third_data(x, y)
     h = diff(x);
 
     if any(abs(h - h(1)) > 1e-6)
-        error('Data must be evenly spaced to use Simpson''s 1/3 rule');
+        error('Data must be evenly spaced to use Simpsons 1/3 rule');
     end
 
     % Initialize the integral
