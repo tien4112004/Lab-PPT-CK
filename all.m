@@ -1483,6 +1483,21 @@ I = simpsons_three_eighths(f, a, b, n);
 
 %% 6.2.3.2. Simpson 3/8 (unknown function)
 function I = simpsons_three_eighths_data(x, y)
+    % SIMPSONS_THERE_EIGHTHS_DATA Calculate the integral of a function using the Simpson's 3/8 rule.
+    %
+    % Syntax:
+    %   I = SIMPSONS_THERE_EIGHTHS_DATA(x, y)
+    %
+    % Description:
+    %   SIMPSONS_THERE_EIGHTHS_DATA(x, y) calculates the integral of the function represented by the data points (x, y) using the Simpson's 3/8 rule.
+    %
+    % Inputs:
+    %   x - the x values of the data points
+    %   y - the y values of the data points
+    %
+    % Outputs:
+    %   I - the integral of the function represented by the data points
+
     % Check that the data is evenly spaced
     h = diff(x);
 
@@ -1517,6 +1532,8 @@ function I = simpsons_three_eighths_data(x, y)
     return;
 end
 
+x = linspace(0, 1, 101);
+y = x .^ 2;
 I_simpsons38 = simpsons_three_eighths_data(x, y);
 
 %% 6.2.4. Newton-Cotes formulas
