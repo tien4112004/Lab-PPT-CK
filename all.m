@@ -724,29 +724,30 @@ disp(a);
 %
 % Output:
 %   y_new: The value or values of the polynomial at the new point or points.
-%   polynomial_str: The string of polynomial 
-%   coef: The coefficients of the polynomial (the regression function).
+%   a: The coefficients of the polynomial (the regression function).
+%
 % Usage:
-%   [y_new, f] = polynomial_interpolation(x, y, x_new);
+%   [y_new, a] = polynomial_interpolation(x, y, x_new);
 %
 % Example:
 %   x = [1, 2.2, 3.1, 4];
 %   y = [1.678, 3.267, 2.198, 3.787];
 %   x_new = 2.5;
-%   [y_new, polynomial_str, coef] = polynomial_interpolation(x, y, x_new);
+%   [y_new, a] = polynomial_interpolation(x, y, x_new);
 %   fprintf('y_new = %f\n', y_new);
 %   fprintf('The regression function coefficients are: \n');
-%   disp(polynomial_str);
+%   disp(a);
 %
 %   % Draw the function of polynomial interpolation
 %   x_new = 1:0.1:4;
-%   [y_new, polynomial_str, coef] = polynomial_interpolation(x, y, x_new);
+%   [y_new, a] = polynomial_interpolation(x, y, x_new);
 %   plot(x, y, 'o', x_new, y_new, '-');
 %
 %   % Print the regression function coefficients
 %   fprintf('The regression function coefficients are: \n');
-%   disp(coef);
-function [y_new, polynomial_str, coef] = polynomial_interpolation(x, y, x_new)
+%   disp(a);
+
+function [y_new, a] = polynomial_interpolation(x, y, x_new)
     n = length(x);
     A = zeros(n, n);
 
@@ -754,26 +755,28 @@ function [y_new, polynomial_str, coef] = polynomial_interpolation(x, y, x_new)
         A(:, i) = x .^ (i - 1);
     end
 
-    coef = A \ y';
+    a = A \ y';
     y_new = zeros(size(x_new));
 
     for i = 1:n
-        y_new = y_new + coef(i) * x_new .^ (i - 1);
+        y_new = y_new + a(i) * x_new .^ (i - 1);
     end
-    
+
     % Build the polynomial string
-    n = length(x);
-    polynomial_str = 'Polynomial interpolation: f(x) = ';
+    polynomial_str = 'f(x) = ';
+
     for i = n:-1:2
-        polynomial_str = [polynomial_str, num2str(coef(i)), ' * x^', num2str(i - 1), ' + '];
+        polynomial_str = [polynomial_str, num2str(a(i)), ' * x^', num2str(i - 1), ' + '];
     end
-    polynomial_str = [polynomial_str, num2str(coef(1))];
-    
+
+    polynomial_str = [polynomial_str, num2str(a(1))];
+
+    % Print the polynomial
+    fprintf('%s\n', polynomial_str);
+
     % Return the coefficients of the polynomial
     return;
 end
-% Print the polynomial
-disp( polynomial_str);
 
 % Draw the function of polynomial interpolation
 x = [1, 2.2, 3.1, 4];
@@ -794,19 +797,17 @@ title('Polynomial Interpolation');
 %
 % Outputs:
 %   y_new: The value or values of the polynomial at the new point or points.
-%   polynimial_str: The string form of polynomial
-%   coef: The coefficients of the polynomial (the regression function).
+%
 % Usage:
-%   [y_new, polynimial_str, coef] = lagrange_interpolation(x, y, x_new);
+%   y_new = lagrange_interpolation(x, y, x_new);
 %
 % Example:
 %   x = [1, 2.2, 3.1, 4];
 %   y = [1.678, 3.267, 2.198, 3.787];
 %   x_new = 2.5;
-%   [y_new, polynimial_str, coef] = lagrange_interpolation(x, y, x_new);
+%   y_new = lagrange_interpolation(x, y, x_new);
 %   fprintf('y_new = %f\n', y_new);
-%   disp(coef)
-%   disp(polynomial_str)
+%
 % Note: If x_new is a vector, the function will plot the original points (x, y) and the interpolated points (x_new, y_new).
 
 function y_new = lagrange_interpolation(x, y, x_new)
@@ -821,22 +822,26 @@ function y_new = lagrange_interpolation(x, y, x_new)
 
     % Initialize Lagrange polynomial
     L = 0;
-    
+
     % Construct the Lagrange polynomial
     for i = 1:n
         % Initialize Li,n(x) as 1
         Li = 1;
+
         for j = 1:n
+
             if i ~= j
                 Li = Li * (x_sym - x(j)) / (x(i) - x(j));
             end
+
         end
+
         % Add the term Li,n(x) * y(i) to the Lagrange polynomial
         L = L + Li * y(i);
     end
 
     % Print the Lagrange polynomial
-    fprintf('Lagrange interpolation: L(x) = %s\n', char(L));
+    fprintf('Lagrange polynomial: L(x) = %s\n', char(L));
 
     % Evaluate the polynomial at the new points
     for k = 1:length(x_new)
@@ -846,6 +851,13 @@ function y_new = lagrange_interpolation(x, y, x_new)
     % Return the interpolated values
     return;
 end
+
+% Test the function
+x = [1, 2.2, 3.1, 4];
+y = [1.678, 3.267, 2.198, 3.787];
+x_new = 2.5;
+y_new = lagrange_interpolation(x, y, x_new);
+fprintf('y_new = %f\n', y_new);
 
 % Draw the function of Lagrange interpolation
 x_new = 1:0.1:4;
@@ -869,31 +881,30 @@ grid on;
 %
 % Outputs:
 %   y_new: The value or values of the polynomial at the new point or points.
-%   polynomial_str: The string form of polynomial
-%   coef: The coefficients of the polynomial (the regression function).
+%
 % Usage:
-%   [y_new, polynomial_str, coef] = newton_interpolation(x, y, x_new);
+%   y_new = newton_interpolation(x, y, x_new);
 %
 % Example:
-% x = [1, 2.2, 3.1, 4];
-% y = [1.678, 3.267, 2.198, 3.787];
-% x_new = 2.5;
-% [y_new, polynomial_str, coef] = newton_interpolation(x, y, x_new);
-% fprintf('y_new = %f\n', y_new);
-% disp(coef);
-% disp(polynomial_str);
+%   x = [1, 2.2, 3.1, 4];
+%   y = [1.678, 3.267, 2.198, 3.787];
+%   x_new = 2.5;
+%   y_new = newton_interpolation(x, y, x_new);
+%   fprintf('y_new = %f\n', y_new);
 %
 % Note: If x_new is a vector, the function will plot the original points (x, y) and the interpolated points (x_new, y_new).
 
-function [y_new, polynimial_str] = newton_interpolation(x, y, x_new)
+function y_new = newton_interpolation(x, y, x_new)
     n = length(x);
     f = zeros(n, n);
     f(:, 1) = y(:); % the first column is y
 
     for j = 2:n
+
         for i = j:n
             f(i, j) = (f(i, j - 1) - f(i - 1, j - 1)) / (x(i) - x(i - j + 1));
         end
+
     end
 
     % Compute the interpolated values
@@ -905,11 +916,18 @@ function [y_new, polynimial_str] = newton_interpolation(x, y, x_new)
 
     % Print the Newton polynomial
     syms x_sym; % Create a symbolic variable
-    polynimial_str = ['Newton interpolation: f(x) = ', char(poly2sym(f(n, :), x_sym))];
+    fprintf('Newton polynomial: f(x) = %s\n', char(poly2sym(f(n, :), x_sym)));
 
     % Return the interpolated values
     return;
 end
+
+% Test the function
+x = [1, 2.2, 3.1, 4];
+y = [1.678, 3.267, 2.198, 3.787];
+x_new = 2.5;
+y_new = newton_interpolation(x, y, x_new);
+fprintf('y_new = %f\n', y_new);
 
 % Draw the function of Newton interpolation
 x_new = 1:0.1:4;
@@ -934,44 +952,29 @@ grid on;
 % Outputs:
 %   y_new: The value or values of the spline at the new point or points.
 %   pp: The piecewise polynomial representing the spline.
-%   spline_str: String form of polynomial
+%
 % Usage:
-%   [y_new, pp, spline_str] = spline_interpolation(x, y, x_new);
+%   [y_new, pp] = spline_interpolation(x, y, x_new);
 %
 % Example:
 %   x = [1, 2.2, 3.1, 4];
 %   y = [1.678, 3.267, 2.198, 3.787];
 %   x_new = 2.5;
-%   [y_new, pp, spline_str] = spline_interpolation(x, y, x_new);
+%   [y_new, pp] = spline_interpolation(x, y, x_new);
 %   fprintf('y_new = %f\n', y_new);
-%   disp(spline_str);
 %
 % Note: If x_new is a vector, the function will plot the original points (x, y) and the interpolated points (x_new, y_new).
 
-function [y_new, pp, spline_str] = spline_interpolation(x, y, x_new)
-    % Construct the cubic spline
+function [y_new, pp] = spline_interpolation(x, y, x_new)
+    % Step 1: Declare the data (x, y) and the new x coordinate x_new
+
+    % Step 2: Construct the cubic spline
     pp = spline(x, y);
 
-    % Evaluate the spline at the new points
+    % Step 3: Evaluate the spline at the new points
     y_new = ppval(pp, x_new);
 
-    % Initialize the spline string
-    spline_str = ['Spilne interpolation: ' newline];
-
-    % Iterate over the pieces
-    for i = 1:pp.pieces
-        % Get the coefficients of the i-th piece
-        coefs = pp.coefs(i, :);
-
-        % Construct a string for the i-th piece
-        piece_str = sprintf('(%g <= x < %g) : f%i(x) = f%g*(x - %g)^3 + %g*(x - %g)^2 + %g*(x - %g) + %g\n', ...
-            x(i), x(i+1), i, coefs(1), x(i), coefs(2), x(i), coefs(3), x(i), coefs(4));
-
-        % Add the string of the i-th piece to the spline string
-        spline_str = [spline_str, piece_str];
-    end
-
-    % If x_new is a vector, plot the original points and the interpolated points
+    % Step 4: If x_new is a vector, plot the original points and the interpolated points
     if length(x_new) > 1
         plot(x, y, 'o', x_new, y_new, '-');
         title('Cubic Spline Interpolation');
@@ -981,9 +984,10 @@ function [y_new, pp, spline_str] = spline_interpolation(x, y, x_new)
         grid on;
     end
 
-    % Return the interpolated values, the spline, and the spline string
+    % Step 5: Return the interpolated values and the spline
     return;
 end
+
 % Define the data points
 x = [1, 2.2, 3.1, 4];
 y = [1.678, 3.267, 2.198, 3.787];
@@ -992,12 +996,10 @@ y = [1.678, 3.267, 2.198, 3.787];
 x_new = 2.5;
 
 % Call the spline_interpolation function
-[y_new, pp, spline_str] = spline_interpolation(x, y, x_new);
+[y_new, pp] = spline_interpolation(x, y, x_new);
 
 % Print the interpolated y value
 fprintf('The interpolated y value at x = %f is y = %f\n', x_new, y_new);
-% Print the polynimial 
-disp(spline_str)
 
 % Plot the original points and the interpolated point
 figure;
@@ -1481,6 +1483,21 @@ I = simpsons_three_eighths(f, a, b, n);
 
 %% 6.2.3.2. Simpson 3/8 (unknown function)
 function I = simpsons_three_eighths_data(x, y)
+    % SIMPSONS_THERE_EIGHTHS_DATA Calculate the integral of a function using the Simpson's 3/8 rule.
+    %
+    % Syntax:
+    %   I = SIMPSONS_THERE_EIGHTHS_DATA(x, y)
+    %
+    % Description:
+    %   SIMPSONS_THERE_EIGHTHS_DATA(x, y) calculates the integral of the function represented by the data points (x, y) using the Simpson's 3/8 rule.
+    %
+    % Inputs:
+    %   x - the x values of the data points
+    %   y - the y values of the data points
+    %
+    % Outputs:
+    %   I - the integral of the function represented by the data points
+
     % Check that the data is evenly spaced
     h = diff(x);
 
@@ -1515,6 +1532,8 @@ function I = simpsons_three_eighths_data(x, y)
     return;
 end
 
+x = linspace(0, 1, 101);
+y = x .^ 2;
 I_simpsons38 = simpsons_three_eighths_data(x, y);
 
 %% 6.2.4. Newton-Cotes formulas
@@ -1538,9 +1557,7 @@ fprintf('The integral of the function using Newton-Cotes method is %f.\n', I_new
 function [I, H] = newton_cotes(x, y, rule)
     h = diff(x);
 
-    if any(abs(h - h(1)) > 1e-6)
-        error('Data must be evenly spaced to use Newton-Cotes method');
-    end
+    if any(
 
     h = h(1);
     n = length(y);
@@ -1702,7 +1719,7 @@ f = @(t, y) y;
 [t, y] = solve_ode_euler(f, [0 2], 1, 0.01);
 
 % Print the solution
-disp(y);
+% disp(y);
 
 % Plot the solution
 plot(t, y);
@@ -1713,7 +1730,57 @@ xlabel('Time (t)');
 ylabel('Solution (y)');
 
 
-% 7.3. Runge-Kutta method
+% 7.3. Euler's improved method
+function [t, y] = solve_ode_euler_improved(f, tspan, y0, h)
+    % Solve an ODE using the Euler's improved method.
+    %
+    % Inputs:
+    %   f - function handle for the ODE (dy/dt = f(t, y))
+    %   tspan - 2-element vector specifying the time range [t0 tf]
+    %   y0 - initial condition
+    %   h - step size
+    %
+    % Outputs:
+    %   t - vector of time points
+    %   y - solution at each time point
+
+    % Initialize the time points
+    t = tspan(1):h:tspan(2);
+
+    % Initialize the solution vector
+    y = zeros(size(t));
+
+    % Set the initial condition
+    y(1) = y0;
+
+    % Iterate over each time point
+    for i = 1:(length(t) - 1)
+        % Update the solution using the Euler's improved method
+        y(i + 1) = y(i) + h * f(t(i), y(i));
+        y(i + 1) = y(i) + (h / 2) * (f(t(i), y(i)) + f(t(i+1), y(i+1)));
+
+    end
+end
+
+% Define the ODE (dy/dt = y)
+f = @(t, y) y + t; 
+
+% Solve the ODE from t = 0 to t = 2 with initial condition y(0) = 1 and step size 0.01
+[t, y] = solve_ode_euler_improved(f, [0 0.4], 1, 0.1);
+
+% Print the solution
+% disp(y);
+
+% Plot the solution
+plot(t, y);
+
+% Add a title and labels to the axes
+title('Solution of dy/dt = y using Euler method');
+xlabel('Time (t)');
+ylabel('Solution (y)');
+
+
+% 7.4. Runge-Kutta method
 function [t, y] = solve_ode_rk4(f, tspan, y0, h)
     % Solve an ODE using the 4th order Runge-Kutta method.
     %
