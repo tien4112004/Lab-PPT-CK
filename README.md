@@ -16,7 +16,10 @@ x = A \ b;
 % Define the coefficients of the polynomial
 % For example, for the polynomial x^3 - 6x^2 + 11x - 6, the coefficients are [1, -6, 11, -6]
 coefficients = [1, -6, 11, -6];
-
 % Find the roots of the polynomial
 roots = roots(coefficients);
+
+% If there's a complex one like: f = @(x)exp(m*x/10) - m*x^2 - x*sin(m*x/10)
+% Use fsolve function with x0 is the initial value: 
+roots = fsolve(f, x0) 
 ```
