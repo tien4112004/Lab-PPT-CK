@@ -8,7 +8,7 @@ A = [3, 2; 1, 4];
 b = [7; 3];
 
 % Solve the system of equations Ax = b
-x = A \ b;
+x = A \ b; or x = x = linsolve(A,b)
 ```
 
 ## Find root of a polynomial
