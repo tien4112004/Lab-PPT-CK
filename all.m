@@ -698,6 +698,7 @@ end
 %% End of Chapter 4
 
 %% Chap 5.1. Interpolation
+%% Chap 5.1. Interpolation
 %% 5.1.1. Polynomial interpolation
 % Test the function
 x = [1, 2.2, 3.1, 4];
@@ -794,22 +795,22 @@ title('Polynomial Interpolation');
 %
 % Outputs:
 %   y_new: The value or values of the polynomial at the new point or points.
-%   polynimial_str: The string form of polynomial
+%   polynomial_str: The string form of polynomial
 %   coef: The coefficients of the polynomial (the regression function).
 % Usage:
-%   [y_new, polynimial_str, coef] = lagrange_interpolation(x, y, x_new);
+%   [y_new, polynomial_str, coef] = lagrange_interpolation(x, y, x_new);
 %
 % Example:
 %   x = [1, 2.2, 3.1, 4];
 %   y = [1.678, 3.267, 2.198, 3.787];
 %   x_new = 2.5;
-%   [y_new, polynimial_str, coef] = lagrange_interpolation(x, y, x_new);
+%   [y_new, polynomial_str, coef] = lagrange_interpolation(x, y, x_new);
 %   fprintf('y_new = %f\n', y_new);
 %   disp(coef)
 %   disp(polynomial_str)
 % Note: If x_new is a vector, the function will plot the original points (x, y) and the interpolated points (x_new, y_new).
 
-function y_new = lagrange_interpolation(x, y, x_new)
+function [y_new, polynomial_str, coef] = lagrange_interpolation(x, y, x_new)
     % Initialize y_new
     y_new = zeros(size(x_new));
 
@@ -821,7 +822,7 @@ function y_new = lagrange_interpolation(x, y, x_new)
 
     % Initialize Lagrange polynomial
     L = 0;
-    
+
     % Construct the Lagrange polynomial
     for i = 1:n
         % Initialize Li,n(x) as 1
@@ -834,15 +835,16 @@ function y_new = lagrange_interpolation(x, y, x_new)
         % Add the term Li,n(x) * y(i) to the Lagrange polynomial
         L = L + Li * y(i);
     end
-
-    % Print the Lagrange polynomial
-    fprintf('Lagrange interpolation: L(x) = %s\n', char(L));
-
+    polynomial_str = ['Lagrange interpolation: f(x) = ', char(L)];
+    
+    %Get coefficients
+    coef = coeffs(L, 'All');
+    
     % Evaluate the polynomial at the new points
     for k = 1:length(x_new)
         y_new(k) = double(subs(L, x_sym, x_new(k)));
     end
-
+    
     % Return the interpolated values
     return;
 end
@@ -885,7 +887,7 @@ grid on;
 %
 % Note: If x_new is a vector, the function will plot the original points (x, y) and the interpolated points (x_new, y_new).
 
-function [y_new, polynimial_str] = newton_interpolation(x, y, x_new)
+function [y_new, polynomial_str, coef] = newton_interpolation(x, y, x_new)
     n = length(x);
     f = zeros(n, n);
     f(:, 1) = y(:); % the first column is y
@@ -905,8 +907,11 @@ function [y_new, polynimial_str] = newton_interpolation(x, y, x_new)
 
     % Print the Newton polynomial
     syms x_sym; % Create a symbolic variable
-    polynimial_str = ['Newton interpolation: f(x) = ', char(poly2sym(f(n, :), x_sym))];
-
+    polynomial_str = ['Newton interpolation: f(x) = ', char(poly2sym(f(n, :), x_sym))];
+    
+    %Get coefficients
+    coef = coeffs(poly2sym(f(n, :), x_sym), 'All');
+    
     % Return the interpolated values
     return;
 end
