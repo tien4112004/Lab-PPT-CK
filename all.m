@@ -1636,20 +1636,38 @@ end
 function I = gauss_legendre_2(f, a, b)
     x = [-1 / sqrt(3), 1 / sqrt(3)];
     w = [1, 1];
-    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
+    I = 0;
+
+    for i = 1:length(x)
+        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
+    end
+
+    I = 0.5 * (b - a) * I;
 end
 
 function I = gauss_legendre_3(f, a, b)
     x = [-sqrt(3/5), 0, sqrt(3/5)];
     w = [5/9, 8/9, 5/9];
-    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
+    I = 0;
+
+    for i = 1:length(x)
+        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
+    end
+
+    I = 0.5 * (b - a) * I;
 end
 
 function I = gauss_legendre_4(f, a, b)
     x = [-sqrt((3/7) - (2/7) * sqrt(6/5)), sqrt((3/7) - (2/7) * sqrt(6/5)), ...
              -sqrt((3/7) + (2/7) * sqrt(6/5)), sqrt((3/7) + (2/7) * sqrt(6/5))];
     w = [(18 + sqrt(30)) / 36, (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36, (18 - sqrt(30)) / 36];
-    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
+    I = 0;
+
+    for i = 1:length(x)
+        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
+    end
+
+    I = 0.5 * (b - a) * I;
 end
 
 % Define a function handle for the function to integrate
