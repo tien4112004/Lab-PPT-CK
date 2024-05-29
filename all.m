@@ -1252,7 +1252,7 @@ function dy = calculate_derivative_forward(x, y)
     dy(end) = (y(end) - y(end - 1)) / (x(end) - x(end - 1));
 end
 
-%% 6.1.2 Backward differences
+%% 6.2. Backward differences
 x = [1, 2, 3, 4, 5];
 y = [1, 4, 9, 16, 25]; % y = x^2
 dy = calculate_derivative_backward(x, y);
@@ -1276,27 +1276,6 @@ function dy = calculate_derivative_backward(x, y)
 
     % Use forward difference for the first point
     dy(1) = (y(2) - y(1)) / (x(2) - x(1));
-end
-
-%%  6.1.3. 3/5 point stencil
-function dy = derivative_central_3_point(x, y, point)
-    % Calculate the derivative of a function at a specific point using central differences with a 3-point stencil.
-    dy = (y(point + 1) - y(point - 1)) / (x(point + 1) - x(point - 1));
-end
-
-function dy = derivative_backward_3_point(x, y, point)
-    % Calculate the derivative of a function at a specific point using backward differences with a 3-point stencil.
-    dy = (3 * y(point) - 4 * y(point - 1) + y(point - 2)) / (2 * (x(2) - x(1)));
-end
-
-function dy = derivative_central_5_point(x, y, point)
-    % Calculate the derivative of a function at a specific point using central differences with a 5-point stencil.
-    dy = (-y(point + 2) + 8 * y(point + 1) - 8 * y(point - 1) + y(point - 2)) / (12 * (x(2) - x(1)));
-end
-
-function dy = derivative_backward_5_point(x, y, point)
-    % Calculate the derivative of a function at a specific point using backward differences with a 5-point stencil.
-    dy = (-y(point) + 8 * y(point - 1) - 8 * y(point - 3) + y(point - 4)) / (12 * (x(2) - x(1)));
 end
 
 %% 6.2. Numerical Integration
@@ -1562,11 +1541,11 @@ I_simpsons38 = simpsons_three_eighths_data(x, y);
 f = @(x) x .^ 2;
 
 % Define the x and y values of the data points for Newton-Cotes method
-x = linspace(0, 1, 101);
+x = linspace(a, b, 101);
 y = f(x);
 
 % Call the Newton-Cotes function
-[I_newton, H] = newton_cotes(x, y, 2);
+[I_newton, H] = newton_cotes(x, y, 'trapezoid');
 
 % Print the result
 fprintf('The integral of the function using Newton-Cotes method is %f.\n', I_newton);
@@ -1575,57 +1554,41 @@ fprintf('The integral of the function using Newton-Cotes method is %f.\n', I_new
 %fprintf('The H matrix is:\n');
 %disp(H);
 
-function [I, H] = newton_cotes(x, y, n)
+function [I, H] = newton_cotes(x, y, rule)
     h = diff(x);
-    h = h(1)
-    size = length(y);
-    
-    I = 0
-    switch n
-        case 1
-            H=[1 1]
 
-            I = y(1) / 2 + y(end) / 2;
+    if any(
 
-            for i = 2:size - 1
-                I = I + y(i);
-            end
+    h = h(1);
+    n = length(y);
+    H = h * ones(n, n);
 
-            I = I * h;
-        case 2
-            H=[1/6 4/6 1/6]
-            if mod(size, 2) == 0
+    for i = 1:n
+
+        for j = i + 1:n
+            H(i, j) = H(i, j - 1) + h;
+            H(j, i) = H(i, j);
+        end
+
+    end
+
+    switch rule
+        case 'trapezoid'
+            I = h / 2 * (y(1) + 2 * sum(y(2:end - 1)) + y(end));
+        case 'simpson1/3'
+
+            if mod(n, 2) == 0
                 error('Simpson''s 1/3 rule requires an odd number of intervals');
             end
-            I = y(1) + y(end)
-            for i = 2:size - 1
 
-                if mod(i, 3) == 0
-                    I = I + 2 * y(i);
-                else
-                    I = I + 3 * y(i);
-                end
-        
-            end
-            I = I * h / 3;
+            I = h / 3 * (y(1) + 4 * sum(y(2:2:end - 1)) + 2 * sum(y(3:2:end - 2)) + y(end));
+        case 'simpson3/8'
 
-        case 3
-            H=[1/8 3/8 3/8 1/8]
-            if mod(size, 3) ~= 1
+            if mod(n, 3) ~= 1
                 error('Simpson''s 3/8 rule requires a number of intervals that is one more than a multiple of three');
             end
 
-            I = y(1) + y(end);
-            for i = 2:size - 1
-        
-                if mod(i, 3) == 0
-                    I = I + 2 * y(i);
-                else
-                    I = I + 3 * y(i);
-                end
-        
-            end
-            I = I * 3 * h / 8;
+            I = 3 * h / 8 * (y(1) + 3 * sum(y(2:3:end - 2)) + 3 * sum(y(3:3:end - 1)) + 2 * sum(y(4:3:end - 3)) + y(end));
         otherwise
             error('Invalid rule. Valid rules are ''trapezoid'', ''simpson1/3'', and ''simpson3/8''.');
     end
@@ -1636,38 +1599,20 @@ end
 function I = gauss_legendre_2(f, a, b)
     x = [-1 / sqrt(3), 1 / sqrt(3)];
     w = [1, 1];
-    I = 0;
-
-    for i = 1:length(x)
-        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
-    end
-
-    I = 0.5 * (b - a) * I;
+    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
 end
 
 function I = gauss_legendre_3(f, a, b)
     x = [-sqrt(3/5), 0, sqrt(3/5)];
     w = [5/9, 8/9, 5/9];
-    I = 0;
-
-    for i = 1:length(x)
-        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
-    end
-
-    I = 0.5 * (b - a) * I;
+    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
 end
 
 function I = gauss_legendre_4(f, a, b)
     x = [-sqrt((3/7) - (2/7) * sqrt(6/5)), sqrt((3/7) - (2/7) * sqrt(6/5)), ...
              -sqrt((3/7) + (2/7) * sqrt(6/5)), sqrt((3/7) + (2/7) * sqrt(6/5))];
     w = [(18 + sqrt(30)) / 36, (18 + sqrt(30)) / 36, (18 - sqrt(30)) / 36, (18 - sqrt(30)) / 36];
-    I = 0;
-
-    for i = 1:length(x)
-        I = I + w(i) * f(0.5 * ((b - a) * x(i) + a + b));
-    end
-
-    I = 0.5 * (b - a) * I;
+    I = 0.5 * (b - a) * sum(w .* arrayfun(f, 0.5 * ((b - a) * x + a + b)));
 end
 
 % Define a function handle for the function to integrate
@@ -1774,7 +1719,7 @@ f = @(t, y) y;
 [t, y] = solve_ode_euler(f, [0 2], 1, 0.01);
 
 % Print the solution
-disp(y);
+% disp(y);
 
 % Plot the solution
 plot(t, y);
@@ -1785,7 +1730,57 @@ xlabel('Time (t)');
 ylabel('Solution (y)');
 
 
-% 7.3. Runge-Kutta method
+% 7.3. Euler's improved method
+function [t, y] = solve_ode_euler_improved(f, tspan, y0, h)
+    % Solve an ODE using the Euler's improved method.
+    %
+    % Inputs:
+    %   f - function handle for the ODE (dy/dt = f(t, y))
+    %   tspan - 2-element vector specifying the time range [t0 tf]
+    %   y0 - initial condition
+    %   h - step size
+    %
+    % Outputs:
+    %   t - vector of time points
+    %   y - solution at each time point
+
+    % Initialize the time points
+    t = tspan(1):h:tspan(2);
+
+    % Initialize the solution vector
+    y = zeros(size(t));
+
+    % Set the initial condition
+    y(1) = y0;
+
+    % Iterate over each time point
+    for i = 1:(length(t) - 1)
+        % Update the solution using the Euler's improved method
+        y(i + 1) = y(i) + h * f(t(i), y(i));
+        y(i + 1) = y(i) + (h / 2) * (f(t(i), y(i)) + f(t(i+1), y(i+1)));
+
+    end
+end
+
+% Define the ODE (dy/dt = y)
+f = @(t, y) y + t; 
+
+% Solve the ODE from t = 0 to t = 2 with initial condition y(0) = 1 and step size 0.01
+[t, y] = solve_ode_euler_improved(f, [0 0.4], 1, 0.1);
+
+% Print the solution
+% disp(y);
+
+% Plot the solution
+plot(t, y);
+
+% Add a title and labels to the axes
+title('Solution of dy/dt = y using Euler method');
+xlabel('Time (t)');
+ylabel('Solution (y)');
+
+
+% 7.4. Runge-Kutta method
 function [t, y] = solve_ode_rk4(f, tspan, y0, h)
     % Solve an ODE using the 4th order Runge-Kutta method.
     %
