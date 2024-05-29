@@ -1541,11 +1541,11 @@ I_simpsons38 = simpsons_three_eighths_data(x, y);
 f = @(x) x .^ 2;
 
 % Define the x and y values of the data points for Newton-Cotes method
-x = linspace(a, b, 101);
+x = linspace(0, 1, 101);
 y = f(x);
 
 % Call the Newton-Cotes function
-[I_newton, H] = newton_cotes(x, y, 'trapezoid');
+[I_newton, H] = newton_cotes(x, y, 2);
 
 % Print the result
 fprintf('The integral of the function using Newton-Cotes method is %f.\n', I_newton);
@@ -1554,43 +1554,57 @@ fprintf('The integral of the function using Newton-Cotes method is %f.\n', I_new
 %fprintf('The H matrix is:\n');
 %disp(H);
 
-function [I, H] = newton_cotes(x, y, rule)
+function [I, H] = newton_cotes(x, y, n)
     h = diff(x);
+    h = h(1)
+    size = length(y);
+    
+    I = 0
+    switch n
+        case 1
+            H=[1 1]
 
-    if any(abs(h - h(1)) > 1e-6)
-        error('Data must be evenly spaced to use Newton-Cotes method');
-    end
+            I = y(1) / 2 + y(end) / 2;
 
-    h = h(1);
-    n = length(y);
-    H = h * ones(n, n);
-
-    for i = 1:n
-
-        for j = i + 1:n
-            H(i, j) = H(i, j - 1) + h;
-            H(j, i) = H(i, j);
-        end
-
-    end
-
-    switch rule
-        case 'trapezoid'
-            I = h / 2 * (y(1) + 2 * sum(y(2:end - 1)) + y(end));
-        case 'simpson1/3'
-
-            if mod(n, 2) == 0
-                error('Simpson''s 1/3 rule requires an odd number of intervals');
+            for i = 2:size - 1
+                I = I + y(i);
             end
 
-            I = h / 3 * (y(1) + 4 * sum(y(2:2:end - 1)) + 2 * sum(y(3:2:end - 2)) + y(end));
-        case 'simpson3/8'
+            I = I * h;
+        case 2
+            H=[1/6 4/6 1/6]
+            if mod(size, 2) == 0
+                error('Simpson''s 1/3 rule requires an odd number of intervals');
+            end
+            I = y(1) + y(end)
+            for i = 2:size - 1
 
-            if mod(n, 3) ~= 1
+                if mod(i, 3) == 0
+                    I = I + 2 * y(i);
+                else
+                    I = I + 3 * y(i);
+                end
+        
+            end
+            I = I * h / 3;
+
+        case 3
+            H=[1/8 3/8 3/8 1/8]
+            if mod(size, 3) ~= 1
                 error('Simpson''s 3/8 rule requires a number of intervals that is one more than a multiple of three');
             end
 
-            I = 3 * h / 8 * (y(1) + 3 * sum(y(2:3:end - 2)) + 3 * sum(y(3:3:end - 1)) + 2 * sum(y(4:3:end - 3)) + y(end));
+            I = y(1) + y(end);
+            for i = 2:size - 1
+        
+                if mod(i, 3) == 0
+                    I = I + 2 * y(i);
+                else
+                    I = I + 3 * y(i);
+                end
+        
+            end
+            I = I * 3 * h / 8;
         otherwise
             error('Invalid rule. Valid rules are ''trapezoid'', ''simpson1/3'', and ''simpson3/8''.');
     end
