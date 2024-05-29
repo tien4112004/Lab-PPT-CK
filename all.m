@@ -1252,7 +1252,7 @@ function dy = calculate_derivative_forward(x, y)
     dy(end) = (y(end) - y(end - 1)) / (x(end) - x(end - 1));
 end
 
-%% 6.2. Backward differences
+%% 6.1.2 Backward differences
 x = [1, 2, 3, 4, 5];
 y = [1, 4, 9, 16, 25]; % y = x^2
 dy = calculate_derivative_backward(x, y);
@@ -1276,6 +1276,27 @@ function dy = calculate_derivative_backward(x, y)
 
     % Use forward difference for the first point
     dy(1) = (y(2) - y(1)) / (x(2) - x(1));
+end
+
+%%  6.1.3. 3/5 point stencil
+function dy = derivative_central_3_point(x, y, point)
+    % Calculate the derivative of a function at a specific point using central differences with a 3-point stencil.
+    dy = (y(point + 1) - y(point - 1)) / (x(point + 1) - x(point - 1));
+end
+
+function dy = derivative_backward_3_point(x, y, point)
+    % Calculate the derivative of a function at a specific point using backward differences with a 3-point stencil.
+    dy = (3 * y(point) - 4 * y(point - 1) + y(point - 2)) / (2 * (x(2) - x(1)));
+end
+
+function dy = derivative_central_5_point(x, y, point)
+    % Calculate the derivative of a function at a specific point using central differences with a 5-point stencil.
+    dy = (-y(point + 2) + 8 * y(point + 1) - 8 * y(point - 1) + y(point - 2)) / (12 * (x(2) - x(1)));
+end
+
+function dy = derivative_backward_5_point(x, y, point)
+    % Calculate the derivative of a function at a specific point using backward differences with a 5-point stencil.
+    dy = (-y(point) + 8 * y(point - 1) - 8 * y(point - 3) + y(point - 4)) / (12 * (x(2) - x(1)));
 end
 
 %% 6.2. Numerical Integration
