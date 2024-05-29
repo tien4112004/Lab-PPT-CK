@@ -1840,6 +1840,74 @@ ylabel('Solution (y)');
 
 
 % 7.4. Runge-Kutta method
+function [t, y] = solve_ode_rk2(f, tspan, y0, h)
+    % Solve an ODE using the 2th order Runge-Kutta method.
+    %
+    % Inputs:
+    %   f - function handle for the ODE (dy/dt = f(t, y))
+    %   tspan - 2-element vector specifying the time range [t0 tf]
+    %   y0 - initial condition
+    %   h - step size
+    %
+    % Outputs:
+    %   t - vector of time points
+    %   y - solution at each time point
+
+    % Initialize the time points
+    t = tspan(1):h:tspan(2);
+
+    % Initialize the solution vector
+    y = zeros(size(t));
+
+    % Set the initial condition
+    y(1) = y0;
+
+    % Iterate over each time point
+    for i = 1:(length(t) - 1)
+        % Calculate the Runge-Kutta coefficients
+        k1 = h * f(t(i), y(i));
+        k2 = h * f(t(i), y(i) + k1);
+
+        % Update the solution
+        y(i + 1) = y(i) + (k1 + k2)/2;
+    end
+end
+
+
+function [t, y] = solve_ode_rk3(f, tspan, y0, h)
+    % Solve an ODE using the 3th order Runge-Kutta method.
+    %
+    % Inputs:
+    %   f - function handle for the ODE (dy/dt = f(t, y))
+    %   tspan - 2-element vector specifying the time range [t0 tf]
+    %   y0 - initial condition
+    %   h - step size
+    %
+    % Outputs:
+    %   t - vector of time points
+    %   y - solution at each time point
+
+    % Initialize the time points
+    t = tspan(1):h:tspan(2);
+
+    % Initialize the solution vector
+    y = zeros(size(t));
+
+    % Set the initial condition
+    y(1) = y0;
+
+    % Iterate over each time point
+    for i = 1:(length(t) - 1)
+        % Calculate the Runge-Kutta coefficients
+        k1 = h * f(t(i), y(i));
+        k2 = h * f(t(i) + h/2, y(i) + k1/2);
+        k3 = h * f(t(i) + h, y(i) - k1 + 2 * k2);
+
+        % Update the solution
+        y(i + 1) = y(i) + (k1 + 4*k2 + k3) / 6;
+    end
+end
+
 function [t, y] = solve_ode_rk4(f, tspan, y0, h)
     % Solve an ODE using the 4th order Runge-Kutta method.
     %
