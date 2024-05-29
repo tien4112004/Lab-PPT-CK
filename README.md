@@ -10,7 +10,7 @@ b = [7; 3];
 % Solve the system of equations Ax = b
 x = A \ b; or x = x = linsolve(A,b)
 ```
-## Get coefficienss of the polynomial
+## Get coefficients of the polynomial
 ```matlab
 % For example, the polynomial is f = @(x) x^3 - 6x^2 + 11x - 6
 coef = coeffs(f, All)
